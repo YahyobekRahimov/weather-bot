@@ -31,15 +31,12 @@ async function getCityName(cityName) { // Added 'async' keyword here
 
 bot.on('text', async (msg) => {
     const chatId = msg.chat.id;
-    bot.sendMessage(chatId, 'Working on it...')
-
     let lat;
     let lon;
 
     try {
         const cityName = msg.text.trim();
         const jsonData = await getCityName(cityName);
-        bot.sendMessage(chatId, `Fetching the current weather data for ${jsonData[0].name}`);
         lat = jsonData[0].lat;
         lon = jsonData[0].lon;
     } catch (error) {
@@ -49,17 +46,18 @@ bot.on('text', async (msg) => {
 
     try {
         const weatherData = await fetchWeatherData(lat, lon);
+        console.log(weatherData);
         bot.sendMessage(chatId, `
-        📍 Location: ${weatherData["name"]}
-        🌡️ Temperature: ${weatherData["main"]["temp"] - 273}
-        🌊 Pressure: ${weatherData["main"]["pressure"]} hPa
-        💧 Humidity: ${weatherData["main"]["humidity"]}%
-        🌧️ Weather: ${weatherData["weather"]["description"]}
-        🌬️ Wind Speed: ${weatherData["wind"]["speed"]} m/s, Direction: ${weatherData["wind"]["deg"]}°
-        🌧️ Rainfall (1 hour): ${weatherData["rain"]["1h"]} mm
+        📍 Location: ${weatherData.name}
+🌡️ Temperature: ${parseInt(weatherData.main.temp - 273)} °C
+🌊 Pressure: ${weatherData.main.pressure} hPa
+💧 Humidity: ${weatherData.main.humidity}%
+🌧️ Weather: ${weatherData.weather[0].description}
+🌬️ Wind Speed: ${weatherData.wind.speed} m/s, Direction: ${weatherData.wind.deg}°
+${weatherData.rain ?`🌧️ Rainfall (1 hour): ${weatherData.rain} mm` : ''}
         `)
     } catch (error) {
-        
+        console.log(error);        
     }
 })
 
